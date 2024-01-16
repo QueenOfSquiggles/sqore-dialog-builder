@@ -1,9 +1,12 @@
 use eframe::{
-    egui::{self, RichText, ViewportBuilder},
-    epaint::{Color32, Vec2},
-    NativeOptions,
+    egui::{self, Response, RichText, Ui, ViewportBuilder, Widget},
+    epaint::{FontId, Vec2},
+    CreationContext, NativeOptions,
 };
 use rfd::FileDialog;
+use sqore_widgets::DialogNode;
+
+mod sqore_widgets;
 
 fn main() -> Result<(), eframe::Error> {
     let native_options = NativeOptions {
@@ -17,7 +20,7 @@ fn main() -> Result<(), eframe::Error> {
         native_options,
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Box::<SCoreDialog>::default()
+            Box::new(SCoreDialog::new(cc))
         }),
     )
 }
@@ -26,6 +29,21 @@ fn main() -> Result<(), eframe::Error> {
 struct SCoreDialog {
     dropped_files: Vec<egui::DroppedFile>,
     picked_path: Option<String>,
+    dialog_nodes: Vec<DialogNode>,
+    font_size: f32,
+}
+
+impl SCoreDialog {
+    fn new(_cc: &CreationContext<'_>) -> Self {
+        Self {
+            font_size: 32f32,
+            ..Default::default()
+        }
+    }
+
+    fn label(&self, ui: &mut Ui, text: &str) -> Response {
+        ui.label(RichText::new(text).font(FontId::proportional(self.font_size)))
+    }
 }
 
 impl eframe::App for SCoreDialog {
@@ -55,16 +73,20 @@ impl eframe::App for SCoreDialog {
                                 print!("Hello mouse!");
                             }
                         });
+                        if ui.button("Add Node").clicked() {
+                            self.dialog_nodes
+                                .push(DialogNode::new("what a fucking node"));
+                        }
                     });
                     ui.heading("Sqore Dialog Builder");
                 });
             });
         egui::SidePanel::left("options_panel").show(ctx, |ui| {
-            ui.label(RichText::new("text").color(Color32::GOLD));
+            self.label(ui, "text");
         });
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered_justified(|ui| {
-                ui.label("Heyo!");
+                self.label(ui, "Heyo!");
                 if ui.button("Pick File").clicked() {
                     if let Some(path) = FileDialog::new().pick_file() {
                         self.picked_path = Some(path.display().to_string());
@@ -73,13 +95,13 @@ impl eframe::App for SCoreDialog {
             });
             if let Some(path) = &self.picked_path {
                 ui.horizontal_centered(|ui| {
-                    ui.label("Path: ");
+                    self.label(ui, "Path: ");
                     ui.monospace(path);
                 });
             }
             if !self.dropped_files.is_empty() {
                 ui.group(|ui| {
-                    ui.label("Files");
+                    self.label(ui, "Files");
                     for file in &self.dropped_files {
                         let name = if let Some(path) = &file.path {
                             path.display().to_string()
@@ -88,9 +110,13 @@ impl eframe::App for SCoreDialog {
                         } else {
                             "???".to_owned()
                         };
-                        ui.label(name);
+                        self.label(ui, name.as_str());
                     }
                 });
+            }
+            ui.heading("Nodes");
+            for node in &mut self.dialog_nodes {
+                node.ui(ui);
             }
         });
         ctx.input(|i| {
