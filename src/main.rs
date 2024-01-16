@@ -1,5 +1,6 @@
 use eframe::{
     egui::{self, ViewportBuilder},
+    epaint::Vec2,
     NativeOptions,
 };
 use rfd::FileDialog;
@@ -42,22 +43,31 @@ impl eframe::App for SCoreDialog {
         //     //     }
         //     // });
         // });
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Heyo!");
-
-            ui.menu_image_button(egui::include_image!("menu.svg"), |ui| {
-                ui.menu_button("Sub Menu", |ui| {
-                    if ui.button("Click Me!").clicked() {
-                        print!("Hello mouse!");
-                    }
+        egui::TopBottomPanel::top("sqore-top")
+            .default_height(32f32)
+            .show(ctx, |ui| {
+                ui.horizontal_wrapped(|ui| {
+                    let menu_icon = egui::Image::new(egui::include_image!("menu.svg"))
+                        .max_size(Vec2 { x: 32f32, y: 32f32 });
+                    ui.menu_image_button(menu_icon, |ui| {
+                        ui.menu_button("Sub Menu", |ui| {
+                            if ui.button("Click Me!").clicked() {
+                                print!("Hello mouse!");
+                            }
+                        });
+                    });
+                    ui.heading("Sqore Dialog Builder");
                 });
             });
-
-            if ui.button("Pick File").clicked() {
-                if let Some(path) = FileDialog::new().pick_file() {
-                    self.picked_path = Some(path.display().to_string());
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.vertical_centered_justified(|ui| {
+                ui.label("Heyo!");
+                if ui.button("Pick File").clicked() {
+                    if let Some(path) = FileDialog::new().pick_file() {
+                        self.picked_path = Some(path.display().to_string());
+                    }
                 }
-            }
+            });
             if let Some(path) = &self.picked_path {
                 ui.horizontal_centered(|ui| {
                     ui.label("Path: ");
