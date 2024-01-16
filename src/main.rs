@@ -1,6 +1,6 @@
 use eframe::{
-    egui::{self, ViewportBuilder},
-    epaint::Vec2,
+    egui::{self, RichText, ViewportBuilder},
+    epaint::{Color32, Vec2},
     NativeOptions,
 };
 use rfd::FileDialog;
@@ -59,6 +59,9 @@ impl eframe::App for SCoreDialog {
                     ui.heading("Sqore Dialog Builder");
                 });
             });
+        egui::SidePanel::left("options_panel").show(ctx, |ui| {
+            ui.label(RichText::new("text").color(Color32::GOLD));
+        });
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered_justified(|ui| {
                 ui.label("Heyo!");
@@ -78,9 +81,21 @@ impl eframe::App for SCoreDialog {
                 ui.group(|ui| {
                     ui.label("Files");
                     for file in &self.dropped_files {
-                        ui.label(&file.name);
+                        let name = if let Some(path) = &file.path {
+                            path.display().to_string()
+                        } else if !file.name.is_empty() {
+                            file.name.clone()
+                        } else {
+                            "???".to_owned()
+                        };
+                        ui.label(name);
                     }
                 });
+            }
+        });
+        ctx.input(|i| {
+            if !i.raw.dropped_files.is_empty() {
+                self.dropped_files = i.raw.dropped_files.clone();
             }
         });
     }
