@@ -56,4 +56,4 @@ windows-archive = ".zip"
 unix-archive = ".tar.gz"
 
 [workspace.metadata.dist.dependencies.apt]
-gtk3 = "*"
+libgtk-3-dev = "*"
