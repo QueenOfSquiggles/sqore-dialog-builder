@@ -69,6 +69,7 @@
 
         <Package Id='*'
             Keywords='Installer'
+            Description='A desktop tool for crafting dialog tracks for the Squiggles Core dialog system'
             Manufacturer='Queen Of Squiggles'
             InstallerVersion='450'
             Languages='1033'

@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Queen Of Squiggles"]
 repository = "https://github.com/QueenOfSquiggles/sqore-dialog-builder"
+description = "A desktop tool for crafting dialog tracks for the Squiggles Core dialog system"
 
 [package.metadata.wix]
 upgrade-guid = "5B1CE108-D999-4FCF-A4BB-A79B3F3E834E"
