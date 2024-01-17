@@ -6,6 +6,7 @@ use eframe::{
 use rfd::FileDialog;
 use sqore_widgets::DialogNode;
 
+mod dialog;
 mod sqore_widgets;
 
 fn main() -> Result<(), eframe::Error> {
@@ -74,8 +75,7 @@ impl eframe::App for SCoreDialog {
                             }
                         });
                         if ui.button("Add Node").clicked() {
-                            self.dialog_nodes
-                                .push(DialogNode::new("what a fucking node"));
+                            self.dialog_nodes.push(DialogNode::new());
                         }
                     });
                     ui.heading("Sqore Dialog Builder");

@@ -2,17 +2,20 @@ use eframe::{
     egui::{collapsing_header::CollapsingState, RichText, Widget},
     epaint::FontId,
 };
+
 use uuid::Uuid;
+
+use crate::dialog::LineWidget;
 pub struct DialogNode {
-    code: String,
     uuid: Uuid,
+    line: LineWidget,
 }
 
 impl DialogNode {
-    pub fn new(code: &str) -> Self {
+    pub fn new() -> Self {
         Self {
-            code: code.to_owned(),
             uuid: Uuid::now_v7(),
+            line: Default::default(),
         }
     }
 }
@@ -20,26 +23,19 @@ impl DialogNode {
 impl Widget for &mut DialogNode {
     fn ui(self, ui: &mut eframe::egui::Ui) -> eframe::egui::Response {
         let id = ui.make_persistent_id(self.uuid);
-        let ret = CollapsingState::load_with_default_open(ui.ctx(), id, true)
+        #[allow(unused_variables)]
+        let heading = self.line.get_name();
+        let color = self.line.get_color();
+        let ret = CollapsingState::load_with_default_open(ui.ctx(), id, false)
             .show_header(ui, |ui| {
-                ui.heading(RichText::new("Dialog Node").font(FontId::proportional(42.0)))
+                ui.heading(
+                    RichText::new(heading.clone())
+                        .font(FontId::proportional(42.0))
+                        .color(color),
+                )
             })
             .body(|ui| {
-                ui.vertical(|ui| {
-                    ui.label("This is a label");
-                    ui.code_editor(&mut self.code);
-                    ui.horizontal_wrapped(|ui| {
-                        if ui.button("delete").clicked() {
-                            println!("Delete");
-                        }
-                        if ui.button("clone").clicked() {
-                            println!("Clone");
-                        }
-                        if ui.button("destroy the sun").clicked() {
-                            println!("Destroy the sun UwU");
-                        }
-                    })
-                });
+                self.line.ui(ui);
             });
         ret.0
     }
